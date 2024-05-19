@@ -1,0 +1,46 @@
+function doPost(e) {
+  const sheetName = 'Whatsapp_BotNotify';
+  const headers = ['tipo', 'mensaje', 'nombre remitente', 'numero remitente', 'Fechayhora'];
+
+  // Abre la hoja de cálculo activa
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(sheetName);
+
+  // Verifica si la hoja "Whatsapp_BotNotify" existe, si no, crea una nueva y agrega los encabezados
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    sheet.appendRow(headers);
+  }
+
+  // Procesa los datos del POST request
+  let jsonData;
+  try {
+    jsonData = JSON.parse(e.postData.contents);
+  } catch (error) {
+    return ContentService.createTextOutput('Error parsing JSON: ' + error).setMimeType(ContentService.MimeType.TEXT);
+  }
+
+  // Log para depuración
+  Logger.log(jsonData);
+
+  const rowData = [
+    jsonData.type || '',
+    jsonData.message || '',
+    jsonData.sender_name || '',
+    jsonData.sender_number || '',
+    jsonData.Fechayhora || ''
+  ];
+
+  // Agrega una nueva fila con los datos recibidos
+  sheet.appendRow(rowData);
+
+  // Respuesta de confirmación
+  return ContentService.createTextOutput('Datos agregados exitosamente').setMimeType(ContentService.MimeType.TEXT);
+}
+
+// Función para obtener el URL del Web App (opcional, para depuración)
+function getScriptUrl() {
+  var url = ScriptApp.getService().getUrl();
+  Logger.log(url);
+  return url;
+}
